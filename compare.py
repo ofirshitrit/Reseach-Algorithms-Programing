@@ -32,7 +32,7 @@ def solve_with_root(a: np.ndarray, b: np.ndarray):
     array([0., 0.])
     """
 
-    # The function that the program will solve - the fun parameter or root
+    # The function that the program will solve - the fun parameter for root
     def equation(x):
         return np.dot(a, x) - b
 
@@ -47,9 +47,9 @@ def solve_with_root(a: np.ndarray, b: np.ndarray):
 
 
 def test_solve_with_root():
-    num_tests = 5
+    num_tests = 50
     for _ in range(num_tests):
-        n = np.random.randint(2, 6)
+        n = np.random.randint(2, 10)
         a = np.random.rand(n, n)  # np.linalg.solve get only square matrices
         b = np.random.randn(n)
 
@@ -74,38 +74,31 @@ def test_solve_with_root():
             print("Vector b:", b)
             print("Solution (solve_with_root):", solution_root)
             print("Solution (numpy.linalg.solve):", solution_numpy)
-        else:
-            print("Test passed")
+    print("All tests passed!")
 
 
 def compare_solution_methods():
     input_sizes = list(range(1, 1001, 50))
 
-    # Initialize lists to store average running times
     avg_time_solve_with_root = []
     avg_time_numpy_solve = []
 
-    # Perform comparisons for each input size
     for size in input_sizes:
-        # Generate random matrix 'a' and vector 'b'
         a = np.random.randn(size, size)
         b = np.random.randn(size)
 
-        # Measure running time for solve_with_root
         start_time = time.time()
         solve_with_root(a, b)
         end_time = time.time()
-        elapsed_time_solve_with_root = end_time - start_time
-        avg_time_solve_with_root.append(elapsed_time_solve_with_root)
+        time_solve_with_root = end_time - start_time
+        avg_time_solve_with_root.append(time_solve_with_root)
 
-        # Measure running time for numpy.linalg.solve
         start_time = time.time()
         np.linalg.solve(a, b)
         end_time = time.time()
-        elapsed_time_numpy_solve = end_time - start_time
-        avg_time_numpy_solve.append(elapsed_time_numpy_solve)
+        time_linalg = end_time - start_time
+        avg_time_numpy_solve.append(time_linalg)
 
-    # Plot the results
     plt.figure(figsize=(10, 6))
     plt.plot(input_sizes, avg_time_solve_with_root, label='solve_with_root', marker='o')
     plt.plot(input_sizes, avg_time_numpy_solve, label='numpy.linalg.solve', marker='o')
@@ -114,27 +107,11 @@ def compare_solution_methods():
     plt.title('Performance Comparison of Solution Methods')
     plt.legend()
     plt.grid(True)
-    plt.savefig("comparison.png")  # after you plot the graphs, save them to a file and upload it separately.
-    plt.show()
+    plt.savefig("comparison.png")
+    # plt.show()
 
 
 if __name__ == '__main__':
-    # put your code here
-    # test_solve_with_root()
+    test_solve_with_root()
     compare_solution_methods()
-    # a = np.array([[1, 2], [3, 4]])
-    # b = np.array([5, 6])
-    #
-    # a = np.array([[1,8], [1, 0]])
-    # b = np.array([5,2])
 
-    # a = np.array([[1, 8, 3], [1, 0, 4], [4, 7, 5]])
-    # b = np.array([1, 2, 3])
-    # #
-    # # # solution = solve_with_root(a, b)
-    # # # print("root:", solution)
-    # #
-    # try:
-    #     print("linalg:", np.linalg.solve(a, b))
-    # except:
-    #     print("An exception has occurred!")
