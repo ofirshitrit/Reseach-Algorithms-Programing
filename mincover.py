@@ -11,6 +11,34 @@ def mincover(graph: nx.Graph)->int:
 
     :param graph: The input graph
     :return: A number containing the minimum vertex cover size
+
+    >>> edges = [(0, 2), (1, 2)]
+    >>> graph = nx.Graph(edges)
+    >>> mincover(graph)
+    1
+
+    >>> edges = [(0, 2), (1, 2), (3,2), (3,1)]
+    >>> graph = nx.Graph(edges)
+    >>> mincover(graph)
+    2
+
+    >>> edges = [(0, 1), (2, 3), (4,5)]
+    >>> graph = nx.Graph(edges)
+    >>> mincover(graph)
+    3
+
+    >>> edges = [(0, 1), (0, 2), (1, 2)]
+    >>> graph = nx.Graph(edges)
+    >>> mincover(graph)
+    2
+
+    >>> edges = [(0, 1), (0, 2), (0, 3), (1,2), (1,3), (2,3)]
+    >>> graph = nx.Graph(edges)
+    >>> mincover(graph)
+    3
+
+
+
     """
     n = graph.number_of_nodes()
 
