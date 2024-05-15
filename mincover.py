@@ -36,23 +36,28 @@ def mincover(graph: nx.Graph)->int:
     >>> graph = nx.Graph(edges)
     >>> mincover(graph)
     3
-
-
-
     """
+    # Number of nodes in the graph
     n = graph.number_of_nodes()
 
+    # Decision variables: x[i] equals 1 if node i is in the vertex cover, 0 otherwise
     x = cvxpy.Variable(n, boolean=True)
+
+    # Objective: minimize the sum of decision variables (i.e., minimize the size of the vertex cover)
     objective = cvxpy.Minimize(cvxpy.sum(x))
 
+    # Constraints: for each edge (u, v), at least one of the nodes u or v must be in the vertex cover
     constraints = []
     for u, v in graph.edges:
         constraints.append(x[u] + x[v] >= 1)
 
+    # Define the optimization problem
     problem = cvxpy.Problem(objective, constraints)
 
+    # Solve the optimization problem
     problem.solve()
 
+    # Return the integer value of the optimal objective function (rounded to the nearest integer)
     return int(np.round(problem.value))
 
 
@@ -71,16 +76,9 @@ def test_mincover():
 
 if __name__ == '__main__':
     edges=eval(input())
-    # edges = [(0, 2), (1, 2)]
-    # edges = [(0, 2), (1, 2), (3,2), (3,1)]
-    # edges = [(0, 1), (2, 3), (4,5)]
-    # edges = [(0, 1), (0, 2), (1, 2)]
     graph = nx.Graph(edges)
-
-    # # Plot the input graph
     # plt.figure(figsize=(8, 6))
     # nx.draw(graph, with_labels=True, node_color='skyblue', node_size=800, font_size=12, font_weight='bold')
-    # plt.title("Input Graph")
     # plt.show()
     print(mincover((graph)))
     # test_mincover()
