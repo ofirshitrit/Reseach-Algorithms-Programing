@@ -1,5 +1,14 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+
+
+"""
+This script implements Dijkstra's and Bellman-Ford algorithms to find shortest paths from a start vertex in a graph.
+It utilizes the flyweight pattern via the `Vertex` class for efficient memory usage.
+The code supports multiple graph representations and output formats for algorithm results,
+offering flexibility and robustness.
+"""
+
 class Vertex:
     _instances = {}
 
@@ -143,6 +152,7 @@ def run_tests():
         "List Output": output_as_list
     }
 
+    # Iterate through each test case
     for test_case in test_cases:
         graph = Graph()
         if test_case["type"] == "matrix":
@@ -150,15 +160,22 @@ def run_tests():
         elif test_case["type"] == "list":
             graph.from_adjacency_list(test_case["data"])
 
-        # Display the graph structure using matplotlib
-        print(f"Displaying {test_case['name']} Graph")
-        graph.display()
 
+        # Display the graph
+        # print(f"Displaying {test_case['name']} Graph")
+        # graph.display()
+
+        # Iterate through each algorithm
         for algo_name, algo_func in algorithms.items():
             distances = algo_func(graph, '0')
-            for output_name, output_func in output_formats.items():
-                print(f"{test_case['name']} - {algo_name} - {output_name}")
-                print(output_func(distances))
 
-run_tests()
+            # Iterate through each output format
+            for output_name, output_func in output_formats.items():
+                print(f"Input type: {test_case['name']}, Algorithm: {algo_name}, Output type: {output_name}")
+                print(f"Result: {output_func(distances)}")
+                print("\n")
+
+
+if __name__ == '__main__':
+    run_tests()
 
