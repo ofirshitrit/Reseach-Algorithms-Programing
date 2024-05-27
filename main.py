@@ -1,3 +1,5 @@
+import networkx as nx
+import matplotlib.pyplot as plt
 class Vertex:
     _instances = {}
 
@@ -83,6 +85,17 @@ class Graph:
 
         return distances
 
+    def display(self):
+        G = nx.DiGraph()
+        for edge in self.edges:
+            G.add_edge(edge.from_vertex.name, edge.to_vertex.name, weight=edge.weight)
+
+        pos = nx.spring_layout(G)
+        edge_labels = {(edge.from_vertex.name, edge.to_vertex.name): edge.weight for edge in self.edges}
+        nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=2000, font_size=10, font_weight='bold')
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+        plt.show()
+
 
 def output_as_dict(distances):
     return distances
@@ -131,17 +144,21 @@ def run_tests():
     }
 
     for test_case in test_cases:
+        graph = Graph()
+        if test_case["type"] == "matrix":
+            graph.from_adjacency_matrix(test_case["data"])
+        elif test_case["type"] == "list":
+            graph.from_adjacency_list(test_case["data"])
+
+        # Display the graph structure using matplotlib
+        print(f"Displaying {test_case['name']} Graph")
+        graph.display()
+
         for algo_name, algo_func in algorithms.items():
-            graph = Graph()
-            if test_case["type"] == "matrix":
-                graph.from_adjacency_matrix(test_case["data"])
-            elif test_case["type"] == "list":
-                graph.from_adjacency_list(test_case["data"])
-
             distances = algo_func(graph, '0')
-
             for output_name, output_func in output_formats.items():
                 print(f"{test_case['name']} - {algo_name} - {output_name}")
                 print(output_func(distances))
 
 run_tests()
+
