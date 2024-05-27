@@ -93,56 +93,55 @@ def output_as_list(distances):
 
 
 def run_tests():
-    adj_matrix = [
-        [0, 1, 4, 0, 0, 0],
-        [1, 0, 4, 2, 7, 0],
-        [4, 4, 0, 3, 5, 0],
-        [0, 2, 3, 0, 4, 6],
-        [0, 7, 5, 4, 0, 7],
-        [0, 0, 0, 6, 7, 0]
+    test_cases = [
+        {
+            "name": "Adjacency Matrix",
+            "data": [
+                [0, 1, 4, 0, 0, 0],
+                [1, 0, 4, 2, 7, 0],
+                [4, 4, 0, 3, 5, 0],
+                [0, 2, 3, 0, 4, 6],
+                [0, 7, 5, 4, 0, 7],
+                [0, 0, 0, 6, 7, 0]
+            ],
+            "type": "matrix"
+        },
+        {
+            "name": "Adjacency List",
+            "data": {
+                '0': [('1', 1), ('2', 4)],
+                '1': [('0', 1), ('2', 4), ('3', 2), ('4', 7)],
+                '2': [('0', 4), ('1', 4), ('3', 3), ('4', 5)],
+                '3': [('1', 2), ('2', 3), ('4', 4), ('5', 6)],
+                '4': [('1', 7), ('2', 5), ('3', 4), ('5', 7)],
+                '5': [('3', 6), ('4', 7)]
+            },
+            "type": "list"
+        }
     ]
 
-    adj_list = {
-        '0': [('1', 1), ('2', 4)],
-        '1': [('0', 1), ('2', 4), ('3', 2), ('4', 7)],
-        '2': [('0', 4), ('1', 4), ('3', 3), ('4', 5)],
-        '3': [('1', 2), ('2', 3), ('4', 4), ('5', 6)],
-        '4': [('1', 7), ('2', 5), ('3', 4), ('5', 7)],
-        '5': [('3', 6), ('4', 7)]
+    algorithms = {
+        "Dijkstra": lambda graph, start: graph.dijkstra(start),
+        "Bellman-Ford": lambda graph, start: graph.bellman_ford(start)
     }
 
-    graph = Graph()
-    graph.from_adjacency_matrix(adj_matrix)
-    dijkstra_distances_matrix = graph.dijkstra('0')
-    bellman_ford_distances_matrix = graph.bellman_ford('0')
+    output_formats = {
+        "Dict Output": output_as_dict,
+        "List Output": output_as_list
+    }
 
-    graph = Graph()
-    graph.from_adjacency_list(adj_list)
-    dijkstra_distances_list = graph.dijkstra('0')
-    bellman_ford_distances_list = graph.bellman_ford('0')
+    for test_case in test_cases:
+        for algo_name, algo_func in algorithms.items():
+            graph = Graph()
+            if test_case["type"] == "matrix":
+                graph.from_adjacency_matrix(test_case["data"])
+            elif test_case["type"] == "list":
+                graph.from_adjacency_list(test_case["data"])
 
-    print("Adjacency Matrix - Dijkstra - Dict Output")
-    print(output_as_dict(dijkstra_distances_matrix))
+            distances = algo_func(graph, '0')
 
-    print("Adjacency Matrix - Dijkstra - List Output")
-    print(output_as_list(dijkstra_distances_matrix))
-
-    print("Adjacency Matrix - Bellman-Ford - Dict Output")
-    print(output_as_dict(bellman_ford_distances_matrix))
-
-    print("Adjacency Matrix - Bellman-Ford - List Output")
-    print(output_as_list(bellman_ford_distances_matrix))
-
-    print("Adjacency List - Dijkstra - Dict Output")
-    print(output_as_dict(dijkstra_distances_list))
-
-    print("Adjacency List - Dijkstra - List Output")
-    print(output_as_list(dijkstra_distances_list))
-
-    print("Adjacency List - Bellman-Ford - Dict Output")
-    print(output_as_dict(bellman_ford_distances_list))
-
-    print("Adjacency List - Bellman-Ford - List Output")
-    print(output_as_list(bellman_ford_distances_list))
+            for output_name, output_func in output_formats.items():
+                print(f"{test_case['name']} - {algo_name} - {output_name}")
+                print(output_func(distances))
 
 run_tests()
