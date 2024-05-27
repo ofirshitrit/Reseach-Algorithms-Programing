@@ -1,129 +1,148 @@
-from typing import List, Dict, Tuple, Union
-import heapq
-import random
+class Vertex:
+    _instances = {}
 
-# Define input types
-GraphType1 = Dict[int, List[Tuple[int, int]]]  # Adjacency List
-GraphType2 = List[List[Union[int, float]]]     # Adjacency Matrix
+    def __new__(cls, name):
+        if name not in cls._instances:
+            cls._instances[name] = super(Vertex, cls).__new__(cls)
+            cls._instances[name].name = name
+        return cls._instances[name]
 
-# Define output types
-PathType1 = List[int]   # List of vertices representing the shortest path
-PathType2 = int         # Length of the shortest path
+    def __repr__(self):
+        return f"Vertex({self.name})"
 
-# Define algorithms
-def dijkstra(graph: Union[GraphType1, GraphType2], start: int) -> Tuple[Union[PathType1, PathType2]]:
-    """
-    Dijkstra's algorithm to find the shortest path from a starting vertex to all other vertices.
+class Edge:
+    def __init__(self, from_vertex, to_vertex, weight):
+        self.from_vertex = from_vertex
+        self.to_vertex = to_vertex
+        self.weight = weight
 
-    Args:
-    - graph: The graph representation (either adjacency list or adjacency matrix).
-    - start: The starting vertex.
+    def __repr__(self):
+        return f"Edge(from={self.from_vertex}, to={self.to_vertex}, weight={self.weight})"
 
-    Returns:
-    - If output type is PathType1: A tuple containing the shortest path (list of vertices) and the shortest path length.
-    - If output type is PathType2: The length of the shortest path.
-    """
-    # Implementation of Dijkstra's algorithm
-    if isinstance(graph, GraphType1):
-        # Implement Dijkstra's algorithm for adjacency list representation
-        pass
-    elif isinstance(graph, GraphType2):
-        # Implement Dijkstra's algorithm for adjacency matrix representation
-        pass
-    else:
-        raise ValueError("Invalid graph type")
 
-def bfs(graph: Union[GraphType1, GraphType2], start: int) -> Tuple[Union[PathType1, PathType2]]:
-    """
-    Breadth-First Search (BFS) to find the shortest path from a starting vertex to all other vertices.
 
-    Args:
-    - graph: The graph representation (either adjacency list or adjacency matrix).
-    - start: The starting vertex.
+class Graph:
+    def __init__(self):
+        self.vertices = {}
+        self.edges = []
 
-    Returns:
-    - If output type is PathType1: A tuple containing the shortest path (list of vertices) and the shortest path length.
-    - If output type is PathType2: The length of the shortest path.
-    """
-    # Implementation of BFS
-    if isinstance(graph, GraphType1):
-        # Implement BFS for adjacency list representation
-        pass
-    elif isinstance(graph, GraphType2):
-        # Implement BFS for adjacency matrix representation
-        pass
-    else:
-        raise ValueError("Invalid graph type")
+    def add_edge(self, from_vertex, to_vertex, weight):
+        from_v = Vertex(from_vertex)
+        to_v = Vertex(to_vertex)
+        self.edges.append(Edge(from_v, to_v, weight))
+        if from_v not in self.vertices:
+            self.vertices[from_v] = []
+        self.vertices[from_v].append((to_v, weight))
 
-# Test and demonstrate the system on all 8 combinations
-def test_system():
-    # Test cases for different combinations of input types, output types, and algorithms
-    for input_type in [GraphType1, GraphType2]:
-        for output_type in [PathType1, PathType2]:
-            for algorithm in [dijkstra, bfs]:
-                # Create a sample graph
-                graph = create_sample_graph(input_type)
+    def from_adjacency_matrix(self, matrix):
+        for i, row in enumerate(matrix):
+            for j, weight in enumerate(row):
+                if weight != 0:
+                    self.add_edge(str(i), str(j), weight)
 
-                # Choose a starting vertex
-                start_vertex = choose_start_vertex(graph)
+    def from_adjacency_list(self, adj_list):
+        for from_vertex, edges in adj_list.items():
+            for to_vertex, weight in edges:
+                self.add_edge(from_vertex, to_vertex, weight)
 
-                # Find shortest path using the selected algorithm
-                shortest_path = algorithm(graph, start_vertex)
+    def dijkstra(self, start_vertex):
+        import heapq
+        start_v = Vertex(start_vertex)
+        distances = {vertex: float('inf') for vertex in self.vertices}
+        distances[start_v] = 0
+        pq = [(0, start_v)]
 
-                # Output the result based on the selected output type
-                output_result(shortest_path, output_type)
+        while pq:
+            current_distance, current_vertex = heapq.heappop(pq)
 
-def create_sample_graph(graph_type: Union[GraphType1, GraphType2]) -> Union[GraphType1, GraphType2]:
-    """
-    Function to create a sample graph based on the specified graph type.
-    """
-    if graph_type == GraphType1:
-        # Sample graph in adjacency list representation
-        sample_graph = {
-            0: [(1, 5), (2, 3)],
-            1: [(0, 5), (2, 2), (3, 6)],
-            2: [(0, 3), (1, 2), (3, 7)],
-            3: [(1, 6), (2, 7)]
-        }
-    elif graph_type == GraphType2:
-        # Sample graph in adjacency matrix representation
-        sample_graph = [
-            [0, 5, 3, float('inf')],
-            [5, 0, 2, 6],
-            [3, 2, 0, 7],
-            [float('inf'), 6, 7, 0]
-        ]
-    else:
-        raise ValueError("Invalid graph type")
-    return sample_graph
+            if current_distance > distances[current_vertex]:
+                continue
 
-def choose_start_vertex(graph: Union[GraphType1, GraphType2]) -> int:
-    """
-    Function to choose a random starting vertex from the graph.
-    """
-    if isinstance(graph, GraphType1):
-        # For adjacency list representation, choose a random key from the dictionary
-        return random.choice(list(graph.keys()))
-    elif isinstance(graph, GraphType2):
-        # For adjacency matrix representation, choose a random index from the list
-        return random.randint(0, len(graph) - 1)
-    else:
-        raise ValueError("Invalid graph type")
+            for neighbor, weight in self.vertices.get(current_vertex, []):
+                distance = current_distance + weight
 
-def output_result(shortest_path: Tuple[Union[PathType1, PathType2]], output_type: Union[PathType1, PathType2]):
-    """
-    Function to output the result based on the selected output type.
-    """
-    if isinstance(output_type, PathType1):
-        if isinstance(shortest_path[0], list):
-            print("Shortest path:", shortest_path[0])
-            print("Shortest path length:", shortest_path[1])
-        else:
-            print("Shortest path:", shortest_path[0])
-    elif isinstance(output_type, PathType2):
-        print("Shortest path length:", shortest_path)
-    else:
-        raise ValueError("Invalid output type")
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    heapq.heappush(pq, (distance, neighbor))
 
-# Run the test system
-test_system()
+        return distances
+
+    def bellman_ford(self, start_vertex):
+        start_v = Vertex(start_vertex)
+        distances = {vertex: float('inf') for vertex in self.vertices}
+        distances[start_v] = 0
+
+        for _ in range(len(self.vertices) - 1):
+            for edge in self.edges:
+                if distances[edge.from_vertex] + edge.weight < distances[edge.to_vertex]:
+                    distances[edge.to_vertex] = distances[edge.from_vertex] + edge.weight
+
+        for edge in self.edges:
+            if distances[edge.from_vertex] + edge.weight < distances[edge.to_vertex]:
+                raise ValueError("Graph contains a negative-weight cycle")
+
+        return distances
+
+
+def output_as_dict(distances):
+    return distances
+
+def output_as_list(distances):
+    return [(vertex.name, distance) for vertex, distance in distances.items()]
+
+
+
+def run_tests():
+    adj_matrix = [
+        [0, 1, 4, 0, 0, 0],
+        [1, 0, 4, 2, 7, 0],
+        [4, 4, 0, 3, 5, 0],
+        [0, 2, 3, 0, 4, 6],
+        [0, 7, 5, 4, 0, 7],
+        [0, 0, 0, 6, 7, 0]
+    ]
+
+    adj_list = {
+        '0': [('1', 1), ('2', 4)],
+        '1': [('0', 1), ('2', 4), ('3', 2), ('4', 7)],
+        '2': [('0', 4), ('1', 4), ('3', 3), ('4', 5)],
+        '3': [('1', 2), ('2', 3), ('4', 4), ('5', 6)],
+        '4': [('1', 7), ('2', 5), ('3', 4), ('5', 7)],
+        '5': [('3', 6), ('4', 7)]
+    }
+
+    graph = Graph()
+    graph.from_adjacency_matrix(adj_matrix)
+    dijkstra_distances_matrix = graph.dijkstra('0')
+    bellman_ford_distances_matrix = graph.bellman_ford('0')
+
+    graph = Graph()
+    graph.from_adjacency_list(adj_list)
+    dijkstra_distances_list = graph.dijkstra('0')
+    bellman_ford_distances_list = graph.bellman_ford('0')
+
+    print("Adjacency Matrix - Dijkstra - Dict Output")
+    print(output_as_dict(dijkstra_distances_matrix))
+
+    print("Adjacency Matrix - Dijkstra - List Output")
+    print(output_as_list(dijkstra_distances_matrix))
+
+    print("Adjacency Matrix - Bellman-Ford - Dict Output")
+    print(output_as_dict(bellman_ford_distances_matrix))
+
+    print("Adjacency Matrix - Bellman-Ford - List Output")
+    print(output_as_list(bellman_ford_distances_matrix))
+
+    print("Adjacency List - Dijkstra - Dict Output")
+    print(output_as_dict(dijkstra_distances_list))
+
+    print("Adjacency List - Dijkstra - List Output")
+    print(output_as_list(dijkstra_distances_list))
+
+    print("Adjacency List - Bellman-Ford - Dict Output")
+    print(output_as_dict(bellman_ford_distances_list))
+
+    print("Adjacency List - Bellman-Ford - List Output")
+    print(output_as_list(bellman_ford_distances_list))
+
+run_tests()
