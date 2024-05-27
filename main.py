@@ -1,122 +1,129 @@
-from typing import List, Tuple, Dict, Any, Union
+from typing import List, Dict, Tuple, Union
+import heapq
+import random
 
+# Define input types
+GraphType1 = Dict[int, List[Tuple[int, int]]]  # Adjacency List
+GraphType2 = List[List[Union[int, float]]]     # Adjacency Matrix
 
-# Define City type for better readability
-City = Tuple[str, Union[Tuple[float, float], Dict[str, float]]]  # (name, (x_coordinate, y_coordinate) or distances)
+# Define output types
+PathType1 = List[int]   # List of vertices representing the shortest path
+PathType2 = int         # Length of the shortest path
 
-
-def euclidean_distance(city1: Tuple[float, float], city2: Tuple[float, float]) -> float:
+# Define algorithms
+def dijkstra(graph: Union[GraphType1, GraphType2], start: int) -> Tuple[Union[PathType1, PathType2]]:
     """
-    Calculates the Euclidean distance between two cities.
+    Dijkstra's algorithm to find the shortest path from a starting vertex to all other vertices.
 
     Args:
-        city1: Tuple containing coordinates of the first city.
-        city2: Tuple containing coordinates of the second city.
+    - graph: The graph representation (either adjacency list or adjacency matrix).
+    - start: The starting vertex.
 
     Returns:
-        The Euclidean distance between the two cities.
+    - If output type is PathType1: A tuple containing the shortest path (list of vertices) and the shortest path length.
+    - If output type is PathType2: The length of the shortest path.
     """
-    x1, y1 = city1
-    x2, y2 = city2
-    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+    # Implementation of Dijkstra's algorithm
+    if isinstance(graph, GraphType1):
+        # Implement Dijkstra's algorithm for adjacency list representation
+        pass
+    elif isinstance(graph, GraphType2):
+        # Implement Dijkstra's algorithm for adjacency matrix representation
+        pass
+    else:
+        raise ValueError("Invalid graph type")
 
-
-def tsp_bruteforce(distances: Dict[Tuple[str, str], float], cities: List[str]) -> List[str]:
+def bfs(graph: Union[GraphType1, GraphType2], start: int) -> Tuple[Union[PathType1, PathType2]]:
     """
-    Solves the TSP using a brute-force algorithm.
+    Breadth-First Search (BFS) to find the shortest path from a starting vertex to all other vertices.
 
     Args:
-        distances: Dictionary containing distances between each pair of cities.
-        cities: List of city names.
+    - graph: The graph representation (either adjacency list or adjacency matrix).
+    - start: The starting vertex.
 
     Returns:
-        A list representing the optimal order to visit the cities.
+    - If output type is PathType1: A tuple containing the shortest path (list of vertices) and the shortest path length.
+    - If output type is PathType2: The length of the shortest path.
     """
-    from itertools import permutations
+    # Implementation of BFS
+    if isinstance(graph, GraphType1):
+        # Implement BFS for adjacency list representation
+        pass
+    elif isinstance(graph, GraphType2):
+        # Implement BFS for adjacency matrix representation
+        pass
+    else:
+        raise ValueError("Invalid graph type")
 
-    shortest_route = None
-    min_distance = float('inf')
+# Test and demonstrate the system on all 8 combinations
+def test_system():
+    # Test cases for different combinations of input types, output types, and algorithms
+    for input_type in [GraphType1, GraphType2]:
+        for output_type in [PathType1, PathType2]:
+            for algorithm in [dijkstra, bfs]:
+                # Create a sample graph
+                graph = create_sample_graph(input_type)
 
-    for route in permutations(cities):
-        distance = sum(distances[route[i], route[i + 1]] for i in range(len(route) - 1))
-        distance += distances[route[-1], route[0]]  # Return to the starting city
-        if distance < min_distance:
-            min_distance = distance
-            shortest_route = route
+                # Choose a starting vertex
+                start_vertex = choose_start_vertex(graph)
 
-    return shortest_route
+                # Find shortest path using the selected algorithm
+                shortest_path = algorithm(graph, start_vertex)
 
+                # Output the result based on the selected output type
+                output_result(shortest_path, output_type)
 
-def tsp_greedy(distances: Dict[Tuple[str, str], float], cities: List[str]) -> List[str]:
+def create_sample_graph(graph_type: Union[GraphType1, GraphType2]) -> Union[GraphType1, GraphType2]:
     """
-    Solves the TSP using a greedy algorithm.
-
-    Args:
-        distances: Dictionary containing distances between each pair of cities.
-        cities: List of city names.
-
-    Returns:
-        A list representing the order to visit the cities.
+    Function to create a sample graph based on the specified graph type.
     """
-    current_city = cities[0]  # Start from the first city
-    unvisited_cities = set(cities[1:])
-    route = [current_city]
+    if graph_type == GraphType1:
+        # Sample graph in adjacency list representation
+        sample_graph = {
+            0: [(1, 5), (2, 3)],
+            1: [(0, 5), (2, 2), (3, 6)],
+            2: [(0, 3), (1, 2), (3, 7)],
+            3: [(1, 6), (2, 7)]
+        }
+    elif graph_type == GraphType2:
+        # Sample graph in adjacency matrix representation
+        sample_graph = [
+            [0, 5, 3, float('inf')],
+            [5, 0, 2, 6],
+            [3, 2, 0, 7],
+            [float('inf'), 6, 7, 0]
+        ]
+    else:
+        raise ValueError("Invalid graph type")
+    return sample_graph
 
-    while unvisited_cities:
-        nearest_city = min(unvisited_cities, key=lambda city: distances[current_city, city])
-        route.append(nearest_city)
-        unvisited_cities.remove(nearest_city)
-        current_city = nearest_city
-
-    route.append(cities[0])  # Return to the starting city
-    return route
-
-
-def solve_tsp(algorithm: str, input_type: str, output_type: str, cities: List[City]) -> Any:
+def choose_start_vertex(graph: Union[GraphType1, GraphType2]) -> int:
     """
-    Solves the TSP problem based on the specified algorithm and input/output types.
-
-    Args:
-        algorithm: Algorithm to use ('bruteforce' or 'greedy').
-        input_type: Type of input ('distances' or 'coordinates').
-        output_type: Type of output ('route' or 'length').
-        cities: List of cities with names and coordinates or distances.
-
-    Returns:
-        The solution based on the specified input/output types.
+    Function to choose a random starting vertex from the graph.
     """
-    distances = {}
-    city_names = [city[0] for city in cities]
+    if isinstance(graph, GraphType1):
+        # For adjacency list representation, choose a random key from the dictionary
+        return random.choice(list(graph.keys()))
+    elif isinstance(graph, GraphType2):
+        # For adjacency matrix representation, choose a random index from the list
+        return random.randint(0, len(graph) - 1)
+    else:
+        raise ValueError("Invalid graph type")
 
-    if input_type == 'distances':
-        for city1 in cities:
-            for city2, distance in city1[1].items():
-                distances[city1[0], city2] = distance
-    elif input_type == 'coordinates':
-        for i, city1 in enumerate(cities):
-            for j, city2 in enumerate(cities):
-                if i != j:
-                    distances[city1[0], city2[0]] = euclidean_distance(city1[1], city2[1])
+def output_result(shortest_path: Tuple[Union[PathType1, PathType2]], output_type: Union[PathType1, PathType2]):
+    """
+    Function to output the result based on the selected output type.
+    """
+    if isinstance(output_type, PathType1):
+        if isinstance(shortest_path[0], list):
+            print("Shortest path:", shortest_path[0])
+            print("Shortest path length:", shortest_path[1])
+        else:
+            print("Shortest path:", shortest_path[0])
+    elif isinstance(output_type, PathType2):
+        print("Shortest path length:", shortest_path)
+    else:
+        raise ValueError("Invalid output type")
 
-    if algorithm == 'bruteforce':
-        route = tsp_bruteforce(distances, city_names)
-    elif algorithm == 'greedy':
-        route = tsp_greedy(distances, city_names)
-
-    if output_type == 'route':
-        return route
-    elif output_type == 'length':
-        total_distance = sum(distances[route[i], route[i + 1]] for i in range(len(route) - 1))
-        total_distance += distances[route[-1], route[0]]  # Return to the starting city
-        return total_distance
-
-
-if __name__ == "__main__":
-    # Test all 8 combinations
-    cities = [("A", (0, 0)), ("B", (1, 1)), ("C", (2, 2)), ("D", (3, 3))]
-
-    for algorithm in ['bruteforce', 'greedy']:
-        for input_type in ['distances', 'coordinates']:
-            for output_type in ['route', 'length']:
-                result = solve_tsp(algorithm, input_type, output_type, cities)
-                print(f"Algorithm: {algorithm}, Input: {input}")
+# Run the test system
+test_system()
