@@ -7,10 +7,22 @@ list_of_answers = pandas.read_csv("https://raw.githubusercontent.com/erelsgl-at-
 
 # codes_for_answers:
 def support_in_one_party_elections(party:str)->int:
+    """
+   Returns the number of people who support the given party in the current election system (Q2).
+
+   >>> support_in_one_party_elections('מחל')
+   134
+   >>> support_in_one_party_elections('פה')
+   109
+   >>> support_in_one_party_elections('ר')
+   3
+   >>> support_in_one_party_elections('עם')
+   21
+   """
     # Find the code corresponding to the given party in codes_for_answers
     party_code_row = codes_for_answers[codes_for_answers['Label'].str.contains(party, na=False)]
     if party_code_row.empty:
-        return 0  # Return 0 if the party is not found
+        return 0
     party_code = party_code_row.iloc[0]['Code']
 
     # Count the number of people who chose this party in Q2
@@ -18,35 +30,59 @@ def support_in_one_party_elections(party:str)->int:
     return count
 
 
-def support_in_multi_party_elections(party:str)->int:
-    # Find the code corresponding to the given party in codes_for_answers
-    party_code_row = codes_for_answers[codes_for_answers['Label'].str.contains(party, na=False)]
-    if party_code_row.empty:
-        return 0  # Return 0 if the party is not found
-    party_code = party_code_row.iloc[0]['Code']
+# Create the dynamic mapping from Q3 columns to party codes
+q3_columns = codes_for_questions[codes_for_questions['Variable'].str.startswith('Q3_')]
+q3_mapping = q3_columns.set_index('Variable')['Label'].to_dict()
 
-    # Get all columns related to Q3
-    q3_columns = [col for col in list_of_answers.columns if col.startswith('Q3_')]
+def get_party_code_mapping(label):
+    # Extract the party code from the label
+    # Assuming the party code is the part of the label before the first space
+    return label.split(' - ')[0]
 
-    # Count the number of occurrences of the party code in any of the Q3 columns
-    count = (list_of_answers[q3_columns] == party_code).sum().sum()
-    return count
+# Create the final mapping from party codes to Q3 columns
+party_to_q3_column = {get_party_code_mapping(label): column for column, label in q3_mapping.items()}
+
+def support_in_multi_party_elections(party_code: str) -> int:
+    """
+    Returns the number of people who support the given party in the alternative election system.
+
+       >>> support_in_multi_party_elections('מחל')
+       162
+       >>> support_in_multi_party_elections('פה')
+       131
+       >>> support_in_multi_party_elections('ר')
+       13
+       >>> support_in_multi_party_elections('עם')
+       27
+    """
+    if party_code not in party_to_q3_column:
+        raise ValueError("Invalid party code")
+
+    q3_column = party_to_q3_column[party_code]
+    support_count = int(list_of_answers[q3_column].sum())
+    return support_count
+
+
 
 
 def parties_with_different_relative_order()->tuple:
-    pass
-    # Put your code here
+    """
+     Checks if there is a pair of parties whose relative order is different in the two methods.
+     Returns the pair of party codes if found, otherwise returns None.
+
+     >>> parties_with_different_relative_order()
+     ('B', 'A')
+     """
+     # Create the dynamic mapping from Q3 columns to party codes
+    q3_columns = codes_for_questions[codes_for_questions['Variable'].str.startswith('Q3_')]
+    q3_mapping = q3_columns.set_index('Variable')['Label'].to_dict()
 
 
 if __name__ == '__main__':
-    # # print(codes_for_questions)
-    # print(list(codes_for_answers.columns))
-    # print(list(codes_for_questions.columns))
-    # print(list(list_of_answers.columns))
-    #
+    print(list(codes_for_answers.columns))
+    print(list(codes_for_questions.columns))
+    print(list(list_of_answers.columns))
     # print(list_of_answers)
-
-    # print(list_of_answers['Q2'].to_dict())
 
 
     # 33
@@ -56,12 +92,14 @@ if __name__ == '__main__':
     # party_code = 'מחל'
 
     # 34
-    party_code = 'אמת'
-    support_count = support_in_one_party_elections(party_code)
-    print(f"The number of people who support the party '{party_code}' is: {support_count}")
+    # party_code = 'אמת'
+    # support_count = support_in_one_party_elections(party_code)
+    # print(f"The number of people who support the party '{party_code}' is: {support_count}")
 
-    # party_code = 'כן - כחול לבן בראשות בני גנץ'
-    # # party_code = 'מחל - הליכוד בהנהגת בנימין נתניהו לראשות הממשלה'
+    # party_code = 'כן'
+    # party_code = 'מחל'
+    # party_code = 'ב'
+    # party_code = 'שס'
     # support_count = support_in_multi_party_elections(party_code)
     # print(f"The number of people who support the party '{party_code}' is: {support_count}")
 
