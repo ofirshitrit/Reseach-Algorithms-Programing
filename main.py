@@ -5,7 +5,7 @@ codes_for_answers = pandas.read_csv("https://raw.githubusercontent.com/erelsgl-a
 list_of_answers = pandas.read_csv("https://raw.githubusercontent.com/erelsgl-at-ariel/research-5784/main/06-python-databases/homework/list_of_answers.csv")
 
 
-# codes_for_answers:
+
 def support_in_one_party_elections(party:str)->int:
     """
    Returns the number of people who support the given party in the current election system (Q2).
@@ -19,8 +19,11 @@ def support_in_one_party_elections(party:str)->int:
    >>> support_in_one_party_elections('עם')
    21
    """
+    # Extract the relevant part of the party string before the '-' character if it exists
+    party = party.split('-')[0].strip()
+
     # Find the code corresponding to the given party in codes_for_answers
-    party_code_row = codes_for_answers[codes_for_answers['Label'].str.contains(party, na=False)]
+    party_code_row = codes_for_answers[codes_for_answers['Label'].str.contains(f"^{party}(?: -|$)", na=False)]
     if party_code_row.empty:
         return 0
     party_code = party_code_row.iloc[0]['Code']
@@ -79,9 +82,9 @@ def parties_with_different_relative_order()->tuple:
 
 
 if __name__ == '__main__':
-    print(list(codes_for_answers.columns))
-    print(list(codes_for_questions.columns))
-    print(list(list_of_answers.columns))
+    # print(list(codes_for_answers.columns))
+    # print(list(codes_for_questions.columns))
+    # print(list(list_of_answers.columns))
     # print(list_of_answers)
 
 
@@ -108,3 +111,5 @@ if __name__ == '__main__':
     #     print(parties_with_different_relative_order())
     # else:
     #     print(support_in_one_party_elections(party), support_in_multi_party_elections(party))
+
+    print(support_in_one_party_elections('ר'))
