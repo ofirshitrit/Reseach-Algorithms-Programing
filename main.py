@@ -104,35 +104,24 @@ def condorcet_winner() -> str:
     """
     cursor = db.cursor()
 
-    # Get all candidate variable names and labels from codes_for_questions
-    cursor.execute("SELECT variable, label FROM codes_for_questions WHERE variable LIKE 'Q6_%'")
-    candidates = cursor.fetchall()
+    # Get all candidate labels from codes_for_questions
+    cursor.execute("SELECT label FROM codes_for_questions WHERE variable LIKE 'Q6_%'")
+    candidates = [row[0] for row in cursor.fetchall()]
 
-    for candidate1_var, candidate1_name in candidates:
+    for candidate1 in candidates:
         is_condorcet_winner = True
 
-        for candidate2_var, candidate2_name in candidates:
-            if candidate1_var == candidate2_var:
+        for candidate2 in candidates:
+            if candidate1 == candidate2:
                 continue
 
-            # Get the net support for candidate1 over candidate2
-            cursor.execute(f"""
-                SELECT 
-                    SUM(CASE WHEN {candidate1_var} > {candidate2_var} THEN 1 ELSE 0 END) AS prefer_candidate1,
-                    SUM(CASE WHEN {candidate2_var} > {candidate1_var} THEN 1 ELSE 0 END) AS prefer_candidate2
-                FROM list_of_answers
-            """)
-            result = cursor.fetchone()
-
-            prefer_candidate1 = result[0] if result[0] is not None else 0
-            prefer_candidate2 = result[1] if result[1] is not None else 0
-
-            if prefer_candidate1 <= prefer_candidate2:
+            net_support = net_support_for_candidate1(candidate1, candidate2)
+            if net_support <= 0:
                 is_condorcet_winner = False
                 break
 
         if is_condorcet_winner:
-            return candidate1_name
+            return candidate1
 
     return "none"
 
